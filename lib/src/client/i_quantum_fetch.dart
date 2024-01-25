@@ -4,10 +4,10 @@ import '../response/response.dart';
 abstract class IQuantumFetch {
   ///T:return type of response
   ///K:return type of decoder
-  Future<HttpResponse<T, K>> getList<T, K>(
+  Future<HttpResponse<List<T>, T>> getList<T>(
     String path, {
     Map<String, String> headers = const {},
-    K Function(Map<String, dynamic>)? decoder,
+    T Function(Map<String, dynamic>)? decoder,
     OnProgress? onProgress,
   });
   Future<HttpResponse<T, T>> get<T>(

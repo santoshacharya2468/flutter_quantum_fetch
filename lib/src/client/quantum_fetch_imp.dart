@@ -14,27 +14,34 @@ class QuantumFetch implements IQuantumFetch {
 
   @override
   Future<HttpResponse<T, T>> get<T>(String path,
-          {Map<String, String> headers = const {},
-          T Function(Map<String, dynamic>)? decoder,
-          OnProgress? onProgress,
-          String? dataNode = "data"}) async =>
-      getList<T, T>(path,
-          headers: headers,
-          decoder: decoder,
-          dataNode: dataNode,
-          onProgress: onProgress);
-  @override
-  Future<HttpResponse<T, K>> getList<T, K>(String path,
       {Map<String, String> headers = const {},
-      K Function(Map<String, dynamic>)? decoder,
+      T Function(Map<String, dynamic>)? decoder,
       OnProgress? onProgress,
       String? dataNode = "data"}) async {
+    final response = await getRaw(path, onProgress: onProgress);
+    return HttpResponse<T, T>.fromDioResponse(
+        response, (json) => decoder?.call(json) ?? json as T, dataNode);
+  }
+
+  Future<Response<dynamic>> getRaw(String path,
+      {OnProgress? onProgress}) async {
     final dio = await instance;
     final response = await dio.get(path,
         onReceiveProgress: ((count, total) =>
             onProgress?.call(total ~/ count)));
-    return HttpResponse<T, K>.fromDioResponse(
-        response, (json) => decoder?.call(json) ?? json as K, dataNode);
+
+    return response;
+  }
+
+  @override
+  Future<HttpResponse<List<T>, T>> getList<T>(String path,
+      {Map<String, String> headers = const {},
+      T Function(Map<String, dynamic>)? decoder,
+      OnProgress? onProgress,
+      String? dataNode = "data"}) async {
+    final response = await getRaw(path, onProgress: onProgress);
+    return HttpResponse<List<T>, T>.fromDioResponse(
+        response, (json) => decoder?.call(json) ?? json as T, dataNode);
   }
 
   @override
