@@ -1,33 +1,33 @@
-import '../typedef/progress.dart';
-import '../response/response.dart';
+import 'package:quantum_fetch/quantum_fetch.dart';
 
 abstract class IQuantumFetch {
   ///T:return type of response
   ///K:return type of decoder
-  Future<HttpResponse<List<T>, T>> getList<T>(
+  Future<APIResponseList<T>> getList<T>(
     String path, {
     Map<String, String> headers = const {},
     T Function(Map<String, dynamic>)? decoder,
+    JsonResponseNode? dataNode,
     OnProgress? onProgress,
   });
-  Future<HttpResponse<T, T>> get<T>(
+  Future<APIResponse<T>> get<T>(
     String path, {
     Map<String, String> headers = const {},
     T Function(Map<String, dynamic>)? decoder,
-    String? dataNode,
+    JsonResponseNode? dataNode,
     OnProgress? onProgress,
   });
 
-  Future<HttpResponse<T, T>> post<T>(
+  Future<APIResponse<T>> post<T>(
     String path, {
     Map<String, String> headers = const {},
     Map<String, dynamic> body = const {},
     T Function(Map<String, dynamic>)? decoder,
     OnProgress? onProgress,
-    String? dataNode,
+    JsonResponseNode? dataNode,
   });
 
-  Future<HttpResponse<T, T>> delete<T>(
+  Future<APIResponse<T>> delete<T>(
     String path, {
     Map<String, String> headers = const {},
     Map<String, dynamic> body = const {},
@@ -35,27 +35,27 @@ abstract class IQuantumFetch {
     OnProgress? onProgress,
   });
 
-  Future<HttpResponse<T, K>> postAndGetList<T, K>(
+  Future<APIResponseList<T>> postAndGetList<T>(
     String path, {
     Map<String, String> headers = const {},
     Map<String, dynamic> body = const {},
-    K Function(Map<String, dynamic>)? decoder,
-    String? dataNode,
+    T Function(Map<String, dynamic>)? decoder,
+    JsonResponseNode? dataNode,
     OnProgress? onProgress,
   });
-  Future<HttpResponse<T, T>> patch<T>(String path,
+  Future<APIResponse<T>> patch<T>(String path,
       {Map<String, String> headers = const {},
       Map<String, dynamic> body = const {},
       T Function(Map<String, dynamic>)? decoder,
       OnProgress? onProgress,
-      String? dataNode});
+      JsonResponseNode? dataNode});
 
-  Future<HttpResponse<T, K>> patchAndGetList<T, K>(String path,
+  Future<APIResponseList<T>> patchAndGetList<T>(String path,
       {Map<String, String> headers = const {},
       Map<String, dynamic> body = const {},
-      K Function(Map<String, dynamic>)? decoder,
+      T Function(Map<String, dynamic>)? decoder,
       OnProgress? onProgress,
-      String? dataNode});
+      JsonResponseNode? dataNode});
 
   Future<Map<String, String>> getDefaultHeaders();
 }

@@ -9,3 +9,4 @@ export 'src/response/response.dart';
 export 'src/typedef/progress.dart';
 export 'src/interceptors/cache_intercepter.dart';
 export 'src/typedef/api_response_typedef.dart';
+export 'src/response/data_node.dart';
