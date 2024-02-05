@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:quantum_fetch/quantum_fetch.dart';
+import 'package:quantum_fetch/src/metadata/pagination_meta_data.dart';
 
 abstract class QuantumFetchConfig {
   String get baseUrl;
@@ -22,4 +23,5 @@ abstract class QuantumFetchConfig {
         'Content-Type': contentType,
       };
   List<Interceptor> get interceptors => [];
+  PaginationMetaData get paginationMetaData => PaginationMetaData();
 }

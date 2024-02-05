@@ -1,5 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:quantum_fetch/quantum_fetch.dart';
+import 'package:quantum_fetch/src/response/pagination.dart';
+
+import '../metadata/pagination_meta_data.dart';
 
 class HttpResponse<T, K> {
   T? data;
@@ -57,4 +60,66 @@ String? errorMessageDecoder(Map<String, dynamic> json) {
         .join(",");
   }
   return ok ? null : 'something went wrong ';
+}
+
+class APIResponseList<T> extends HttpResponse<List<T>, T> {
+  QuantumFetchPagination pagination;
+  APIResponseList(
+      {required this.pagination,
+      super.data,
+      super.message,
+      super.statusCode,
+      required super.success});
+  factory APIResponseList.fromDioResponse(
+      Response response,
+      T Function(Map<String, dynamic>) decoder,
+      JsonResponseNode? node,
+      final QuantumFetchConfig globalFetchConfig,
+      {List<int> validStatusCodes = const [200, 201, 204]}) {
+    final json = response.data;
+    final baseData = HttpResponse<List<T>, T>.fromDioResponse(
+        response, decoder, node, globalFetchConfig,
+        validStatusCodes: validStatusCodes);
+    final paginationData =
+        globalFetchConfig.paginationMetaData.rooteNode == null
+            ? json
+            : json[globalFetchConfig.paginationMetaData.rooteNode]
+                as Map<String, dynamic>?;
+    final paginationMetaData = PaginationMetaData(
+      rooteNode: globalFetchConfig.paginationMetaData.rooteNode,
+      totalNode: globalFetchConfig.paginationMetaData.totalNode,
+      currentPageNode: globalFetchConfig.paginationMetaData.currentPageNode,
+      perPageNode: globalFetchConfig.paginationMetaData.perPageNode,
+    );
+
+    return APIResponseList<T>(
+        pagination:
+            QuantumFetchPagination.fromJson(paginationData, paginationMetaData),
+        data: baseData.data,
+        message: baseData.message,
+        statusCode: baseData.statusCode,
+        success: baseData.success);
+  }
+}
+
+class APIResponse<T> extends HttpResponse<T, T> {
+  APIResponse(
+      {super.data, super.message, super.statusCode, required super.success});
+
+  //from dio response
+  factory APIResponse.fromDioResponse(
+      Response response,
+      T Function(Map<String, dynamic>) decoder,
+      JsonResponseNode? node,
+      final QuantumFetchConfig globalFetchConfig,
+      {List<int> validStatusCodes = const [200, 201, 204]}) {
+    final baseData = HttpResponse<T, T>.fromDioResponse(
+        response, decoder, node, globalFetchConfig,
+        validStatusCodes: validStatusCodes);
+    return APIResponse(
+        data: baseData.data,
+        message: baseData.message,
+        statusCode: baseData.statusCode,
+        success: baseData.success);
+  }
 }

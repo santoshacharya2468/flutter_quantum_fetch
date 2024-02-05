@@ -1,3 +1,6 @@
+## 0.0.7
+* Fixed http caching issue
+
 ## 0.0.6
 * Fetch config global rootnode issue fixed
 
