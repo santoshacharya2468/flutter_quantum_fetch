@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:quantum_fetch/quantum_fetch.dart';
 
+import '../typedef/decoder.dart';
+
 class QuantumFetch extends QuantumFetchImpl {
   QuantumFetch(QuantumFetchConfig config) : super(config);
 }
@@ -20,7 +22,7 @@ class QuantumFetchImpl implements IQuantumFetch {
   Future<APIResponse<T>> get<T>(
     String path, {
     Map<String, String> headers = const {},
-    T Function(Map<String, dynamic>)? decoder,
+    required Decoder<T>? decoder,
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
@@ -68,7 +70,7 @@ class QuantumFetchImpl implements IQuantumFetch {
   Future<APIResponseList<T>> getList<T>(
     String path, {
     Map<String, String> headers = const {},
-    T Function(Map<String, dynamic>)? decoder,
+    required Decoder<T>? decoder,
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
@@ -83,7 +85,7 @@ class QuantumFetchImpl implements IQuantumFetch {
     String path, {
     Map<String, String> headers = const {},
     Map<String, dynamic> body = const {},
-    T Function(Map<String, dynamic>)? decoder,
+    required Decoder<T>? decoder,
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
@@ -98,7 +100,7 @@ class QuantumFetchImpl implements IQuantumFetch {
     String path, {
     Map<String, String> headers = const {},
     Map<String, dynamic> body = const {},
-    T Function(Map<String, dynamic> p1)? decoder,
+    Decoder<T>? decoder,
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
@@ -113,7 +115,7 @@ class QuantumFetchImpl implements IQuantumFetch {
     String path, {
     Map<String, String> headers = const {},
     Map<String, dynamic> body = const {},
-    T Function(Map<String, dynamic>)? decoder,
+    required Decoder<T>? decoder,
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
@@ -128,7 +130,7 @@ class QuantumFetchImpl implements IQuantumFetch {
     String path, {
     Map<String, String> headers = const {},
     Map<String, dynamic> body = const {},
-    T Function(Map<String, dynamic> p1)? decoder,
+    required Decoder<T>? decoder,
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
@@ -143,19 +145,14 @@ class QuantumFetchImpl implements IQuantumFetch {
     String path, {
     Map<String, String> headers = const {},
     Map<String, dynamic> body = const {},
-    T Function(Map<String, dynamic>)? decoder,
+    required Decoder<T>? decoder,
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
     final dio = await instance;
     final response = await dio.delete(path, data: body);
-    final responseBody = response.data ?? {};
-    return APIResponse<T>(
-      data: decoder?.call(responseBody['data'] as Map<String, dynamic>),
-      statusCode: response.statusCode,
-      message: responseBody['message'] as String?,
-      success: [200, 204].contains(response.statusCode),
-    );
+    return APIResponse<T>.fromDioResponse(
+        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
   }
 
   int calculateProgress(int a, int b) {

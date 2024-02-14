@@ -3,6 +3,7 @@ import 'package:quantum_fetch/quantum_fetch.dart';
 import 'package:quantum_fetch/src/response/pagination.dart';
 
 import '../metadata/pagination_meta_data.dart';
+import '../typedef/decoder.dart';
 
 class HttpResponse<T, K> {
   T? data;
@@ -16,11 +17,8 @@ class HttpResponse<T, K> {
     this.message,
     required this.success,
   });
-  factory HttpResponse.fromDioResponse(
-      Response response,
-      K Function(Map<String, dynamic>) decoder,
-      JsonResponseNode? node,
-      final QuantumFetchConfig globalFetchConfig,
+  factory HttpResponse.fromDioResponse(Response response, Decoder<K> decoder,
+      JsonResponseNode? node, final QuantumFetchConfig globalFetchConfig,
       {List<int> validStatusCodes = const [200, 201, 204]}) {
     ///check if there is modification from local request else check from global fetch config for root node modifications
     final rootNode =
@@ -34,11 +32,9 @@ class HttpResponse<T, K> {
     final payloadData = rootNode == null ? json : json[rootNode];
     if (ok) {
       if (T == List<K>) {
-        data = (payloadData as List)
-            .map((e) => decoder(e as Map<String, dynamic>))
-            .toList() as T;
+        data = (payloadData as List).map((e) => decoder(e)).toList() as T;
       } else {
-        data = decoder(payloadData as Map<String, dynamic>) as T;
+        data = decoder(payloadData) as T;
       }
     }
     return HttpResponse<T, K>(
@@ -70,11 +66,8 @@ class APIResponseList<T> extends HttpResponse<List<T>, T> {
       super.message,
       super.statusCode,
       required super.success});
-  factory APIResponseList.fromDioResponse(
-      Response response,
-      T Function(Map<String, dynamic>) decoder,
-      JsonResponseNode? node,
-      final QuantumFetchConfig globalFetchConfig,
+  factory APIResponseList.fromDioResponse(Response response, Decoder<T> decoder,
+      JsonResponseNode? node, final QuantumFetchConfig globalFetchConfig,
       {List<int> validStatusCodes = const [200, 201, 204]}) {
     final json = response.data;
     final baseData = HttpResponse<List<T>, T>.fromDioResponse(
@@ -107,11 +100,8 @@ class APIResponse<T> extends HttpResponse<T, T> {
       {super.data, super.message, super.statusCode, required super.success});
 
   //from dio response
-  factory APIResponse.fromDioResponse(
-      Response response,
-      T Function(Map<String, dynamic>) decoder,
-      JsonResponseNode? node,
-      final QuantumFetchConfig globalFetchConfig,
+  factory APIResponse.fromDioResponse(Response response, Decoder<T> decoder,
+      JsonResponseNode? node, final QuantumFetchConfig globalFetchConfig,
       {List<int> validStatusCodes = const [200, 201, 204]}) {
     final baseData = HttpResponse<T, T>.fromDioResponse(
         response, decoder, node, globalFetchConfig,
