@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 class RequestBodyIntercepter extends Interceptor {
   @override
@@ -15,8 +17,9 @@ class RequestBodyIntercepter extends Interceptor {
 
   Future<MultipartFile> fileEncoder(File file) async {
     final fileName = file.path.split("/").last;
+    final type  = lookupMimeType(fileName); //
     final fileData =
-        await MultipartFile.fromFile(file.path, filename: fileName);
+        await MultipartFile.fromFile(file.path, filename: fileName,contentType:  MediaType(type!.split('/').first, type.split('/').last));
     return fileData;
   }
 
