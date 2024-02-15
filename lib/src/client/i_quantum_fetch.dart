@@ -59,6 +59,19 @@ abstract class IQuantumFetch {
       required Decoder<T>? decoder,
       OnProgress? onProgress,
       JsonResponseNode? dataNode});
+  Future<APIResponse<T>> put<T>(String path,
+      {Map<String, String> headers = const {},
+      Map<String, dynamic> body = const {},
+      required Decoder<T>? decoder,
+      OnProgress? onProgress,
+      JsonResponseNode? dataNode});
+
+  Future<APIResponseList<T>> putAndGetList<T>(String path,
+      {Map<String, String> headers = const {},
+      Map<String, dynamic> body = const {},
+      required Decoder<T>? decoder,
+      OnProgress? onProgress,
+      JsonResponseNode? dataNode});
 
   Future<Map<String, String>> getDefaultHeaders();
 }

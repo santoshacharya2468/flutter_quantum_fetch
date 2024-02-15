@@ -66,6 +66,18 @@ class QuantumFetchImpl implements IQuantumFetch {
     return response;
   }
 
+  Future<Response<dynamic>> putRaw(String path,
+      {OnProgress? onProgress,
+      Map<String, dynamic> data = const {},
+      Map<String, dynamic> headers = const {}}) async {
+    final dio = await instance;
+    final response = await dio.put(path,
+        data: data,
+        options: Options(headers: headers),
+        onSendProgress: ((count, total) => onProgress?.call(total ~/ count)));
+    return response;
+  }
+
   @override
   Future<APIResponseList<T>> getList<T>(
     String path, {
@@ -122,6 +134,36 @@ class QuantumFetchImpl implements IQuantumFetch {
     final response = await patchRaw(path,
         data: body, headers: headers, onProgress: onProgress);
     return APIResponse<T>.fromDioResponse(
+        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
+  }
+
+  @override
+  Future<APIResponse<T>> put<T>(
+    String path, {
+    Map<String, String> headers = const {},
+    Map<String, dynamic> body = const {},
+    required Decoder<T>? decoder,
+    OnProgress? onProgress,
+    JsonResponseNode? dataNode,
+  }) async {
+    final response = await putRaw(path,
+        data: body, headers: headers, onProgress: onProgress);
+    return APIResponse<T>.fromDioResponse(
+        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
+  }
+
+  @override
+  Future<APIResponseList<T>> putAndGetList<T>(
+    String path, {
+    Map<String, String> headers = const {},
+    Map<String, dynamic> body = const {},
+    required Decoder<T>? decoder,
+    OnProgress? onProgress,
+    JsonResponseNode? dataNode,
+  }) async {
+    final response = await putRaw(path,
+        data: body, headers: headers, onProgress: onProgress);
+    return APIResponseList<T>.fromDioResponse(
         response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
   }
 
