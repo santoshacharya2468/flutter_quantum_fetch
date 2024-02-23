@@ -28,8 +28,7 @@ class QuantumFetchImpl implements IQuantumFetch {
   }) async {
     final response =
         await getRaw(path, onProgress: onProgress, headers: headers);
-    return APIResponse<T>.fromDioResponse(
-        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
+    return APIResponse<T>.fromDioResponse(response, decoder, dataNode, config);
   }
 
   Future<Response<dynamic>> getRaw(String path,
@@ -89,7 +88,7 @@ class QuantumFetchImpl implements IQuantumFetch {
     final response =
         await getRaw(path, onProgress: onProgress, headers: headers);
     return APIResponseList<T>.fromDioResponse(
-        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
+        response, decoder, dataNode, config);
   }
 
   @override
@@ -103,8 +102,7 @@ class QuantumFetchImpl implements IQuantumFetch {
   }) async {
     final response = await postRaw(path,
         data: body, headers: headers, onProgress: onProgress);
-    return APIResponse<T>.fromDioResponse(
-        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
+    return APIResponse<T>.fromDioResponse(response, decoder, dataNode, config);
   }
 
   @override
@@ -119,7 +117,7 @@ class QuantumFetchImpl implements IQuantumFetch {
     final response = await postRaw(path,
         data: body, headers: headers, onProgress: onProgress);
     return APIResponseList<T>.fromDioResponse(
-        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
+        response, decoder, dataNode, config);
   }
 
   @override
@@ -133,8 +131,7 @@ class QuantumFetchImpl implements IQuantumFetch {
   }) async {
     final response = await patchRaw(path,
         data: body, headers: headers, onProgress: onProgress);
-    return APIResponse<T>.fromDioResponse(
-        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
+    return APIResponse<T>.fromDioResponse(response, decoder, dataNode, config);
   }
 
   @override
@@ -148,8 +145,7 @@ class QuantumFetchImpl implements IQuantumFetch {
   }) async {
     final response = await putRaw(path,
         data: body, headers: headers, onProgress: onProgress);
-    return APIResponse<T>.fromDioResponse(
-        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
+    return APIResponse<T>.fromDioResponse(response, decoder, dataNode, config);
   }
 
   @override
@@ -164,7 +160,7 @@ class QuantumFetchImpl implements IQuantumFetch {
     final response = await putRaw(path,
         data: body, headers: headers, onProgress: onProgress);
     return APIResponseList<T>.fromDioResponse(
-        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
+        response, decoder, dataNode, config);
   }
 
   @override
@@ -179,7 +175,7 @@ class QuantumFetchImpl implements IQuantumFetch {
     final response = await patchRaw(path,
         data: body, headers: headers, onProgress: onProgress);
     return APIResponseList<T>.fromDioResponse(
-        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
+        response, decoder, dataNode, config);
   }
 
   @override
@@ -193,8 +189,7 @@ class QuantumFetchImpl implements IQuantumFetch {
   }) async {
     final dio = await instance;
     final response = await dio.delete(path, data: body);
-    return APIResponse<T>.fromDioResponse(
-        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
+    return APIResponse<T>.fromDioResponse(response, decoder, dataNode, config);
   }
 
   int calculateProgress(int a, int b) {

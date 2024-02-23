@@ -17,7 +17,7 @@ class HttpResponse<T, K> {
     this.message,
     required this.success,
   });
-  factory HttpResponse.fromDioResponse(Response response, Decoder<K> decoder,
+  factory HttpResponse.fromDioResponse(Response response, Decoder<K>? decoder,
       JsonResponseNode? node, final QuantumFetchConfig globalFetchConfig,
       {List<int> validStatusCodes = const [200, 201, 204]}) {
     ///check if there is modification from local request else check from global fetch config for root node modifications
@@ -30,13 +30,19 @@ class HttpResponse<T, K> {
         ? (json[successNode] as bool? ?? false)
         : validStatusCodes.contains(response.statusCode);
     final payloadData = rootNode == null ? json : json[rootNode];
-    if (ok) {
+    print("payloadData: $payloadData");
+
+    if (ok && payloadData != null && decoder != null) {
       if (T == List<K>) {
         data = (payloadData as List).map((e) => decoder(e)).toList() as T;
       } else {
         data = decoder(payloadData) as T;
       }
     }
+    if (decoder == null) {
+      data = payloadData;
+    }
+
     return HttpResponse<T, K>(
         data: data,
         statusCode: response.statusCode,
@@ -66,8 +72,11 @@ class APIResponseList<T> extends HttpResponse<List<T>, T> {
       super.message,
       super.statusCode,
       required super.success});
-  factory APIResponseList.fromDioResponse(Response response, Decoder<T> decoder,
-      JsonResponseNode? node, final QuantumFetchConfig globalFetchConfig,
+  factory APIResponseList.fromDioResponse(
+      Response response,
+      Decoder<T>? decoder,
+      JsonResponseNode? node,
+      final QuantumFetchConfig globalFetchConfig,
       {List<int> validStatusCodes = const [200, 201, 204]}) {
     final json = response.data;
     final baseData = HttpResponse<List<T>, T>.fromDioResponse(
@@ -100,7 +109,7 @@ class APIResponse<T> extends HttpResponse<T, T> {
       {super.data, super.message, super.statusCode, required super.success});
 
   //from dio response
-  factory APIResponse.fromDioResponse(Response response, Decoder<T> decoder,
+  factory APIResponse.fromDioResponse(Response response, Decoder<T>? decoder,
       JsonResponseNode? node, final QuantumFetchConfig globalFetchConfig,
       {List<int> validStatusCodes = const [200, 201, 204]}) {
     final baseData = HttpResponse<T, T>.fromDioResponse(

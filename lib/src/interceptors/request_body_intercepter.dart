@@ -17,9 +17,10 @@ class RequestBodyIntercepter extends Interceptor {
 
   Future<MultipartFile> fileEncoder(File file) async {
     final fileName = file.path.split("/").last;
-    final type  = lookupMimeType(fileName); //
-    final fileData =
-        await MultipartFile.fromFile(file.path, filename: fileName,contentType:  MediaType(type!.split('/').first, type.split('/').last));
+    final type = lookupMimeType(fileName); //
+    final fileData = await MultipartFile.fromFile(file.path,
+        filename: fileName,
+        contentType: MediaType(type!.split('/').first, type.split('/').last));
     return fileData;
   }
 
@@ -34,9 +35,15 @@ class RequestBodyIntercepter extends Interceptor {
       } else if (value is Map) {
         result[key] =
             await bodyEncoder(value as Map<String, dynamic>, depth: depth + 1);
+      } else if (value is List<Map>) {
+        result[key] = await Future.wait(value.map((e) async =>
+            await bodyEncoder(e as Map<String, dynamic>, depth: depth + 1)));
       } else if (value is File) {
         hasFile = true;
         result[key] = await fileEncoder(value);
+      } else if (value is List<File>) {
+        hasFile = true;
+        result[key] = await Future.wait(value.map(fileEncoder));
       } else {
         result[key] = value;
       }
