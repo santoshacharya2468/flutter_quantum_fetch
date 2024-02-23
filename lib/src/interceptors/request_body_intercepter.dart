@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
@@ -19,9 +18,21 @@ class RequestBodyIntercepter extends Interceptor {
     final fileName = file.path.split("/").last;
     final type  = lookupMimeType(fileName); //
     final fileData =
-        await MultipartFile.fromFile(file.path, filename: fileName,contentType:  MediaType(type!.split('/').first, type.split('/').last));
+    await MultipartFile.fromFile(file.path, filename: fileName,contentType:  MediaType(type!.split('/').first, type.split('/').last));
     return fileData;
   }
+  Future<List<MultipartFile>> ListFileEncoder(List<File> files) async {
+    final uploadedList = <MultipartFile>[];
+    for (final file in files) {
+      final fileName = file.path.split("/").last;
+      final type  = lookupMimeType(fileName); //
+      final fileData =
+      await MultipartFile.fromFile(file.path, filename: fileName,contentType:  MediaType(type!.split('/').first, type.split('/').last));
+      uploadedList.add(fileData);
+    }
+    return uploadedList;
+  }
+
 
   FutureOr<dynamic> bodyEncoder(Map<String, dynamic> body,
       {int depth = 0}) async {
@@ -33,11 +44,15 @@ class RequestBodyIntercepter extends Interceptor {
         result[key] = value.toIso8601String();
       } else if (value is Map) {
         result[key] =
-            await bodyEncoder(value as Map<String, dynamic>, depth: depth + 1);
+        await bodyEncoder(value as Map<String, dynamic>, depth: depth + 1);
       } else if (value is File) {
         hasFile = true;
         result[key] = await fileEncoder(value);
-      } else {
+      } else if (value is List<File>) {
+        hasFile = true;
+        result[key] = await ListFileEncoder(value);
+      }
+      else {
         result[key] = value;
       }
     }
