@@ -30,13 +30,16 @@ class HttpResponse<T, K> {
         ? (json[successNode] as bool? ?? false)
         : validStatusCodes.contains(response.statusCode);
     final payloadData = rootNode == null ? json : json[rootNode];
-    print("payloadData: $payloadData");
-
     if (ok && payloadData != null && decoder != null) {
       if (T == List<K>) {
         data = (payloadData as List).map((e) => decoder(e)).toList() as T;
       } else {
         data = decoder(payloadData) as T;
+        if (payloadData != null && payloadData is List) {
+          data = payloadData.first as T;
+        } else {
+          data = decoder(payloadData as Map<String, dynamic>) as T;
+        }
       }
     }
     if (decoder == null) {

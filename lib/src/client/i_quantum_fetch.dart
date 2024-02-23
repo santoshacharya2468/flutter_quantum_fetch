@@ -29,6 +29,15 @@ abstract class IQuantumFetch {
     JsonResponseNode? dataNode,
   });
 
+  Future<APIResponse<T>> upload<T>(
+    String path, {
+    Map<String, String> headers = const {},
+    Map<String, dynamic> body = const {},
+    T Function(Map<String, dynamic>)? decoder,
+    OnProgress? onProgress,
+    JsonResponseNode? dataNode,
+  });
+
   Future<APIResponse<T>> delete<T>(
     String path, {
     Map<String, String> headers = const {},

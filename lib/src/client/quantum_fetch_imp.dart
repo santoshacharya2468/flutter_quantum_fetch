@@ -9,7 +9,9 @@ class QuantumFetch extends QuantumFetchImpl {
 
 class QuantumFetchImpl implements IQuantumFetch {
   final QuantumFetchConfig config;
+
   QuantumFetchImpl(this.config);
+
   @override
   Future<Map<String, String>> getDefaultHeaders() async {
     final token = await config.token;
@@ -211,5 +213,18 @@ class QuantumFetchImpl implements IQuantumFetch {
         ...config.interceptors,
         cacheIntercepter(),
       ]);
+  }
+
+  @override
+  Future<APIResponse<T>> upload<T>(String path,
+      {Map<String, String> headers = const {},
+      Map<String, dynamic> body = const {},
+      T Function(Map<String, dynamic> p1)? decoder,
+      OnProgress? onProgress,
+      JsonResponseNode? dataNode}) async{
+    final response = await postRaw(path,
+        data: body, headers: headers, onProgress: onProgress);
+    return APIResponse<T>.fromDioResponse(
+        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
   }
 }
