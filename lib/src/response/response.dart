@@ -38,7 +38,11 @@ class HttpResponse<T, K> {
             .map((e) => decoder(e as Map<String, dynamic>))
             .toList() as T;
       } else {
-        data = decoder(payloadData as Map<String, dynamic>) as T;
+        if (payloadData != null&& payloadData is List){
+          data = payloadData.first as T;
+        }else{
+          data = decoder(payloadData as Map<String, dynamic>) as T;
+        }
       }
     }
     return HttpResponse<T, K>(
