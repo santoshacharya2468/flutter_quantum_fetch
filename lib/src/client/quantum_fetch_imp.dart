@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:quantum_fetch/quantum_fetch.dart';
 
 import '../typedef/decoder.dart';
@@ -210,6 +211,7 @@ class QuantumFetchImpl implements IQuantumFetch {
         LogInterceptor(
             requestBody: true, responseBody: true, responseHeader: false),
         RequestBodyIntercepter(),
+        PrettyDioLogger(),
         ...config.interceptors,
         cacheIntercepter(),
       ]);
@@ -221,7 +223,7 @@ class QuantumFetchImpl implements IQuantumFetch {
       Map<String, dynamic> body = const {},
       T Function(Map<String, dynamic> p1)? decoder,
       OnProgress? onProgress,
-      JsonResponseNode? dataNode}) async{
+      JsonResponseNode? dataNode}) async {
     final response = await postRaw(path,
         data: body, headers: headers, onProgress: onProgress);
     return APIResponse<T>.fromDioResponse(
