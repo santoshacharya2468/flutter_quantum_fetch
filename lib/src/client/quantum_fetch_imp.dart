@@ -208,10 +208,17 @@ class QuantumFetchImpl implements IQuantumFetch {
           validateStatus: (d) => true,
           headers: await getDefaultHeaders()),
     )..interceptors.addAll([
-        LogInterceptor(
-            requestBody: true, responseBody: true, responseHeader: false),
+        // LogInterceptor(
+        //     requestBody: true, responseBody: true, responseHeader: false),
         RequestBodyIntercepter(),
-        PrettyDioLogger(),
+        PrettyDioLogger(
+            requestHeader: true,
+            requestBody: true,
+            responseBody: true,
+            responseHeader: false,
+            error: true,
+            compact: true,
+            maxWidth: 90),
         ...config.interceptors,
         cacheIntercepter(),
       ]);
