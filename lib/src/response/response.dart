@@ -52,7 +52,7 @@ class HttpResponse<T, K> {
         data: data,
         statusCode: response.statusCode,
         message: errorMessageDecoder(json),
-        rawBody: response.data,
+        rawBody: json,
         success: ok);
   }
 }
@@ -106,6 +106,7 @@ class APIResponseList<T> extends HttpResponse<List<T>, T> {
             QuantumFetchPagination.fromJson(paginationData, paginationMetaData),
         data: baseData.data,
         message: baseData.message,
+        rawBody: json,
         statusCode: baseData.statusCode,
         success: baseData.success);
   }
@@ -146,6 +147,7 @@ class APIResponse<T> extends HttpResponse<T, T> {
             QuantumFetchPagination.fromJson(paginationData, paginationMetaData),
         message: baseData.message,
         statusCode: baseData.statusCode,
+        rawBody: json,
         success: baseData.success);
   }
 }
