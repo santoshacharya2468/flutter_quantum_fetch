@@ -71,7 +71,7 @@ String? errorMessageDecoder(Map<String, dynamic> json) {
 }
 
 class APIResponseList<T> extends HttpResponse<List<T>, T> {
-  QuantumFetchPagination? pagination;
+  QuantumFetchPagination pagination;
   APIResponseList(
       {required this.pagination,
       super.data,
@@ -119,7 +119,7 @@ class APIResponse<T> extends HttpResponse<T, T> {
       super.statusCode,
       super.rawBody,
       required super.success,
-      required this.pagination});
+      this.pagination});
 
   //from dio response
   factory APIResponse.fromDioResponse(Response response, Decoder<T>? decoder,
