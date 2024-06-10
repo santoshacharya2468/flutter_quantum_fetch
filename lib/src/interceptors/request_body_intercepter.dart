@@ -50,7 +50,7 @@ class RequestBodyIntercepter extends Interceptor {
       } else if (value is List<Map>) {
         result[key] = await Future.wait(value.map((e) async =>
             await bodyEncoder(e as Map<String, dynamic>, depth: depth + 1)));
-        await bodyEncoder(value as Map<String, dynamic>, depth: depth + 1);
+        // await bodyEncoder(value as Map<String, dynamic>, depth: depth + 1);
       } else if (value is File) {
         hasFile = true;
         result[key] = await fileEncoder(value);
