@@ -29,7 +29,10 @@ class HttpResponse<T, K> {
     final json = response.data;
     T? data;
     final ok = successNode != null
-        ? (json[successNode] as bool? ?? false)
+        ? ((json[successNode].toLowerCase() == 'true' ||
+                json[successNode].toLowerCase() == 'ok' ||
+                json[successNode].toLowerCase() == 'success') ??
+            false)
         : validStatusCodes.contains(response.statusCode);
     final payloadData = rootNode == null ? json : json[rootNode];
     if (ok && payloadData != null && decoder != null) {
