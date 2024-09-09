@@ -19,6 +19,8 @@ abstract class IQuantumFetch {
     JsonResponseNode? dataNode,
     OnProgress? onProgress,
   });
+  Future<Response<dynamic>> getRaw(String path,
+      {OnProgress? onProgress, Map<String, dynamic> headers = const {}});
 
   Future<APIResponse<T>> post<T>(
     String path, {
@@ -28,6 +30,10 @@ abstract class IQuantumFetch {
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   });
+  Future<Response<dynamic>> postRaw(String path,
+      {OnProgress? onProgress,
+      Map<String, dynamic> data = const {},
+      Map<String, dynamic> headers = const {}});
 
   Future<APIResponse<T>> upload<T>(
     String path, {
