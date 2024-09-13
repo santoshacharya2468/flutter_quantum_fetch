@@ -10,12 +10,14 @@ class HttpResponse<T, K> {
   int? statusCode;
   String? message;
   bool success;
+  dynamic rawBody;
 
   HttpResponse({
     this.data,
     this.statusCode,
     this.message,
     required this.success,
+    required this.rawBody,
   });
   factory HttpResponse.fromDioResponse(Response response, Decoder<K>? decoder,
       JsonResponseNode? node, final QuantumFetchConfig globalFetchConfig,
@@ -27,7 +29,10 @@ class HttpResponse<T, K> {
     final json = response.data;
     T? data;
     final ok = successNode != null
-        ? (json[successNode] as bool? ?? false)
+        ? ((json[successNode].toLowerCase() == 'true' ||
+                json[successNode].toLowerCase() == 'ok' ||
+                json[successNode].toLowerCase() == 'success') ??
+            false)
         : validStatusCodes.contains(response.statusCode);
     final payloadData = rootNode == null ? json : json[rootNode];
     if (ok && payloadData != null && decoder != null) {
@@ -50,6 +55,7 @@ class HttpResponse<T, K> {
         data: data,
         statusCode: response.statusCode,
         message: errorMessageDecoder(json),
+        rawBody: json,
         success: ok);
   }
 }
@@ -74,6 +80,7 @@ class APIResponseList<T> extends HttpResponse<List<T>, T> {
       super.data,
       super.message,
       super.statusCode,
+      super.rawBody,
       required super.success});
   factory APIResponseList.fromDioResponse(
       Response response,
@@ -102,14 +109,21 @@ class APIResponseList<T> extends HttpResponse<List<T>, T> {
             QuantumFetchPagination.fromJson(paginationData, paginationMetaData),
         data: baseData.data,
         message: baseData.message,
+        rawBody: json,
         statusCode: baseData.statusCode,
         success: baseData.success);
   }
 }
 
 class APIResponse<T> extends HttpResponse<T, T> {
+  QuantumFetchPagination? pagination;
   APIResponse(
-      {super.data, super.message, super.statusCode, required super.success});
+      {super.data,
+      super.message,
+      super.statusCode,
+      super.rawBody,
+      required super.success,
+      this.pagination});
 
   //from dio response
   factory APIResponse.fromDioResponse(Response response, Decoder<T>? decoder,
@@ -118,10 +132,25 @@ class APIResponse<T> extends HttpResponse<T, T> {
     final baseData = HttpResponse<T, T>.fromDioResponse(
         response, decoder, node, globalFetchConfig,
         validStatusCodes: validStatusCodes);
+    final json = response.data;
+    final paginationData =
+        globalFetchConfig.paginationMetaData.rooteNode == null
+            ? json
+            : json[globalFetchConfig.paginationMetaData.rooteNode]
+                as Map<String, dynamic>?;
+    final paginationMetaData = PaginationMetaData(
+      rooteNode: globalFetchConfig.paginationMetaData.rooteNode,
+      totalNode: globalFetchConfig.paginationMetaData.totalNode,
+      currentPageNode: globalFetchConfig.paginationMetaData.currentPageNode,
+      perPageNode: globalFetchConfig.paginationMetaData.perPageNode,
+    );
     return APIResponse(
         data: baseData.data,
+        pagination:
+            QuantumFetchPagination.fromJson(paginationData, paginationMetaData),
         message: baseData.message,
         statusCode: baseData.statusCode,
+        rawBody: json,
         success: baseData.success);
   }
 }

@@ -1,6 +1,6 @@
 name: quantum_fetch
 description: a flutter package to make api call.
-version: 0.1.9-beta
+version: 0.2.5
 homepage: https://github.com/santoshacharya2468/flutter_quantum_fetch
 repository: https://github.com/santoshacharya2468/flutter_quantum_fetch
 
