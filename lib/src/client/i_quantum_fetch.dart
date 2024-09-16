@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:quantum_fetch/quantum_fetch.dart';
 
 import '../typedef/decoder.dart';

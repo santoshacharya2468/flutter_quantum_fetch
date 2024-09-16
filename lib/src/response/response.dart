@@ -1,3 +1,5 @@
+import 'dart:core';
+
 import 'package:dio/dio.dart';
 import 'package:quantum_fetch/quantum_fetch.dart';
 import 'package:quantum_fetch/src/response/pagination.dart';
@@ -29,10 +31,10 @@ class HttpResponse<T, K> {
     final json = response.data;
     T? data;
     final ok = successNode != null
-        ? ((json[successNode].toLowerCase() == 'true' ||
-                json[successNode].toLowerCase() == 'ok' ||
-                json[successNode].toLowerCase() == 'success') ??
-            false)
+        ? (json[successNode].toString().toLowerCase() == 'true' ||
+                json[successNode].toString().toLowerCase() == 'ok' ||
+                json[successNode].toString().toLowerCase() == 'success') ??
+            false
         : validStatusCodes.contains(response.statusCode);
     final payloadData = rootNode == null ? json : json[rootNode];
     if (ok && payloadData != null && decoder != null) {
