@@ -1,6 +1,7 @@
-import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:quantum_fetch/quantum_fetch.dart';
+import 'package:quantum_fetch/src/metadata/pagination_meta_data.dart';
+import 'package:quantum_fetch/src/response/pagination.dart';
 
 import '../typedef/decoder.dart';
 
@@ -29,11 +30,31 @@ class QuantumFetchImpl implements IQuantumFetch {
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
-    final response =
-        await getRaw(path, onProgress: onProgress, headers: headers);
-    return APIResponse<T>.fromDioResponse(response, decoder, dataNode, config);
+    try {
+      final response =
+          await getRaw(path, onProgress: onProgress, headers: headers);
+      return APIResponse<T>.fromDioResponse(
+          response, decoder, dataNode, config);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return APIResponse<T>(
+          pagination: QuantumFetchPagination.fromJson({}, PaginationMetaData()),
+          success: false,
+          message: "Connection timed out",
+          rawBody: e,
+        );
+      }
+      return APIResponse<T>(
+          pagination: QuantumFetchPagination.fromJson({}, PaginationMetaData()),
+          success: false,
+          message: e.message,
+          rawBody: e);
+    }
   }
 
+  @override
   Future<Response<dynamic>> getRaw(String path,
       {OnProgress? onProgress, Map<String, dynamic> headers = const {}}) async {
     final dio = await instance;
@@ -44,9 +65,10 @@ class QuantumFetchImpl implements IQuantumFetch {
     return response;
   }
 
+  @override
   Future<Response<dynamic>> postRaw(String path,
       {OnProgress? onProgress,
-      Map<String, dynamic> data = const {},
+      Object data = const {},
       Map<String, dynamic> headers = const {}}) async {
     final dio = await instance;
     final response = await dio.post(path,
@@ -88,10 +110,28 @@ class QuantumFetchImpl implements IQuantumFetch {
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
-    final response =
-        await getRaw(path, onProgress: onProgress, headers: headers);
-    return APIResponseList<T>.fromDioResponse(
-        response, decoder, dataNode, config);
+    try {
+      final response =
+          await getRaw(path, onProgress: onProgress, headers: headers);
+      return APIResponseList<T>.fromDioResponse(
+          response, decoder, dataNode, config);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return APIResponseList<T>(
+          pagination: QuantumFetchPagination.fromJson({}, PaginationMetaData()),
+          success: false,
+          message: "Connection timed out",
+          rawBody: e,
+        );
+      }
+      return APIResponseList<T>(
+          pagination: QuantumFetchPagination.fromJson({}, PaginationMetaData()),
+          success: false,
+          message: e.message,
+          rawBody: e);
+    }
   }
 
   @override
@@ -103,9 +143,51 @@ class QuantumFetchImpl implements IQuantumFetch {
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
-    final response = await postRaw(path,
-        data: body, headers: headers, onProgress: onProgress);
-    return APIResponse<T>.fromDioResponse(response, decoder, dataNode, config);
+    try {
+      final response = await postRaw(path,
+          data: body, headers: headers, onProgress: onProgress);
+      return APIResponse<T>.fromDioResponse(
+          response, decoder, dataNode, config);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return APIResponse<T>(
+          success: false,
+          message: "Connection timed out",
+          rawBody: e,
+        );
+      }
+      return APIResponse<T>(success: false, message: e.message, rawBody: e);
+    }
+  }
+
+  @override
+  Future<APIResponse<T>> postFormData<T>(
+    String path, {
+    Map<String, String> headers = const {},
+    required FormData body,
+    required Decoder<T>? decoder,
+    OnProgress? onProgress,
+    JsonResponseNode? dataNode,
+  }) async {
+    try {
+      final response = await postRaw(path,
+          data: body, headers: headers, onProgress: onProgress);
+      return APIResponse<T>.fromDioResponse(
+          response, decoder, dataNode, config);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return APIResponse<T>(
+          success: false,
+          message: "Connection timed out",
+          rawBody: e,
+        );
+      }
+      return APIResponse<T>(success: false, message: e.message, rawBody: e);
+    }
   }
 
   @override
@@ -117,10 +199,28 @@ class QuantumFetchImpl implements IQuantumFetch {
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
-    final response = await postRaw(path,
-        data: body, headers: headers, onProgress: onProgress);
-    return APIResponseList<T>.fromDioResponse(
-        response, decoder, dataNode, config);
+    try {
+      final response = await postRaw(path,
+          data: body, headers: headers, onProgress: onProgress);
+      return APIResponseList<T>.fromDioResponse(
+          response, decoder, dataNode, config);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return APIResponseList<T>(
+          pagination: QuantumFetchPagination.fromJson({}, PaginationMetaData()),
+          success: false,
+          message: "Connection timed out",
+          rawBody: e,
+        );
+      }
+      return APIResponseList<T>(
+          pagination: QuantumFetchPagination.fromJson({}, PaginationMetaData()),
+          success: false,
+          message: e.message,
+          rawBody: e);
+    }
   }
 
   @override
@@ -132,9 +232,23 @@ class QuantumFetchImpl implements IQuantumFetch {
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
-    final response = await patchRaw(path,
-        data: body, headers: headers, onProgress: onProgress);
-    return APIResponse<T>.fromDioResponse(response, decoder, dataNode, config);
+    try {
+      final response = await patchRaw(path,
+          data: body, headers: headers, onProgress: onProgress);
+      return APIResponse<T>.fromDioResponse(
+          response, decoder, dataNode, config);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return APIResponse<T>(
+          success: false,
+          message: "Connection timed out",
+          rawBody: e,
+        );
+      }
+      return APIResponse<T>(success: false, message: e.message, rawBody: e);
+    }
   }
 
   @override
@@ -146,9 +260,23 @@ class QuantumFetchImpl implements IQuantumFetch {
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
-    final response = await putRaw(path,
-        data: body, headers: headers, onProgress: onProgress);
-    return APIResponse<T>.fromDioResponse(response, decoder, dataNode, config);
+    try {
+      final response = await putRaw(path,
+          data: body, headers: headers, onProgress: onProgress);
+      return APIResponse<T>.fromDioResponse(
+          response, decoder, dataNode, config);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return APIResponse<T>(
+          success: false,
+          message: "Connection timed out",
+          rawBody: e,
+        );
+      }
+      return APIResponse<T>(success: false, message: e.message, rawBody: e);
+    }
   }
 
   @override
@@ -160,10 +288,28 @@ class QuantumFetchImpl implements IQuantumFetch {
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
-    final response = await putRaw(path,
-        data: body, headers: headers, onProgress: onProgress);
-    return APIResponseList<T>.fromDioResponse(
-        response, decoder, dataNode, config);
+    try {
+      final response = await putRaw(path,
+          data: body, headers: headers, onProgress: onProgress);
+      return APIResponseList<T>.fromDioResponse(
+          response, decoder, dataNode, config);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return APIResponseList<T>(
+          pagination: QuantumFetchPagination.fromJson({}, PaginationMetaData()),
+          success: false,
+          message: "Connection timed out",
+          rawBody: e,
+        );
+      }
+      return APIResponseList<T>(
+          pagination: QuantumFetchPagination.fromJson({}, PaginationMetaData()),
+          success: false,
+          message: e.message,
+          rawBody: e);
+    }
   }
 
   @override
@@ -175,10 +321,28 @@ class QuantumFetchImpl implements IQuantumFetch {
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
-    final response = await patchRaw(path,
-        data: body, headers: headers, onProgress: onProgress);
-    return APIResponseList<T>.fromDioResponse(
-        response, decoder, dataNode, config);
+    try {
+      final response = await patchRaw(path,
+          data: body, headers: headers, onProgress: onProgress);
+      return APIResponseList<T>.fromDioResponse(
+          response, decoder, dataNode, config);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return APIResponseList<T>(
+          pagination: QuantumFetchPagination.fromJson({}, PaginationMetaData()),
+          success: false,
+          message: "Connection timed out",
+          rawBody: e,
+        );
+      }
+      return APIResponseList<T>(
+          pagination: QuantumFetchPagination.fromJson({}, PaginationMetaData()),
+          success: false,
+          message: e.message,
+          rawBody: e);
+    }
   }
 
   @override
@@ -190,9 +354,23 @@ class QuantumFetchImpl implements IQuantumFetch {
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
   }) async {
-    final dio = await instance;
-    final response = await dio.delete(path, data: body);
-    return APIResponse<T>.fromDioResponse(response, decoder, dataNode, config);
+    try {
+      final dio = await instance;
+      final response = await dio.delete(path, data: body);
+      return APIResponse<T>.fromDioResponse(
+          response, decoder, dataNode, config);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return APIResponse<T>(
+          success: false,
+          message: "Connection timed out",
+          rawBody: e,
+        );
+      }
+      return APIResponse<T>(success: false, message: e.message, rawBody: e);
+    }
   }
 
   int calculateProgress(int a, int b) {
@@ -203,15 +381,21 @@ class QuantumFetchImpl implements IQuantumFetch {
     return Dio(
       BaseOptions(
           baseUrl: config.baseUrl,
-          connectTimeout: Duration(seconds: config.connectTimeout),
-          receiveTimeout: Duration(seconds: config.receiveTimeout),
+          connectTimeout: Duration(milliseconds: config.connectTimeout),
+          receiveTimeout: Duration(milliseconds: config.receiveTimeout),
           validateStatus: (d) => true,
           headers: await getDefaultHeaders()),
     )..interceptors.addAll([
-        LogInterceptor(
-            requestBody: true, responseBody: true, responseHeader: false),
+        // LogInterceptor(
+        //     requestBody: true, responseBody: true, responseHeader: false),
         RequestBodyIntercepter(),
-        PrettyDioLogger(),
+        PrettyDioLogger(
+            requestHeader: true,
+            responseBody: true,
+            responseHeader: false,
+            error: true,
+            compact: true,
+            maxWidth: 90),
         ...config.interceptors,
         cacheIntercepter(),
       ]);
@@ -224,9 +408,22 @@ class QuantumFetchImpl implements IQuantumFetch {
       T Function(Map<String, dynamic> p1)? decoder,
       OnProgress? onProgress,
       JsonResponseNode? dataNode}) async {
-    final response = await postRaw(path,
-        data: body, headers: headers, onProgress: onProgress);
-    return APIResponse<T>.fromDioResponse(
-        response, (json) => decoder?.call(json) ?? json as T, dataNode, config);
+    try {
+      final response = await postRaw(path,
+          data: body, headers: headers, onProgress: onProgress);
+      return APIResponse<T>.fromDioResponse(response,
+          (json) => decoder?.call(json) ?? json as T, dataNode, config);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return APIResponse<T>(
+          success: false,
+          message: "Connection timed out",
+          rawBody: e,
+        );
+      }
+      return APIResponse<T>(success: false, message: e.message, rawBody: e);
+    }
   }
 }
