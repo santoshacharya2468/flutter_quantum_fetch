@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:quantum_fetch/quantum_fetch.dart';
 import 'package:quantum_fetch/src/metadata/pagination_meta_data.dart';
@@ -69,7 +68,7 @@ class QuantumFetchImpl implements IQuantumFetch {
   @override
   Future<Response<dynamic>> postRaw(String path,
       {OnProgress? onProgress,
-      Map<String, dynamic> data = const {},
+      Object data = const {},
       Map<String, dynamic> headers = const {}}) async {
     final dio = await instance;
     final response = await dio.post(path,
@@ -140,6 +139,34 @@ class QuantumFetchImpl implements IQuantumFetch {
     String path, {
     Map<String, String> headers = const {},
     Map<String, dynamic> body = const {},
+    required Decoder<T>? decoder,
+    OnProgress? onProgress,
+    JsonResponseNode? dataNode,
+  }) async {
+    try {
+      final response = await postRaw(path,
+          data: body, headers: headers, onProgress: onProgress);
+      return APIResponse<T>.fromDioResponse(
+          response, decoder, dataNode, config);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return APIResponse<T>(
+          success: false,
+          message: "Connection timed out",
+          rawBody: e,
+        );
+      }
+      return APIResponse<T>(success: false, message: e.message, rawBody: e);
+    }
+  }
+
+  @override
+  Future<APIResponse<T>> postFormData<T>(
+    String path, {
+    Map<String, String> headers = const {},
+    required FormData body,
     required Decoder<T>? decoder,
     OnProgress? onProgress,
     JsonResponseNode? dataNode,
